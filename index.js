@@ -5,7 +5,12 @@ const app = express();
 const port = 3000;
 let counter = 0;
 
-const jsonParser = bodyParser.json();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded(
+    {
+        extended: true
+    }
+));
 
 let games = [
     {
@@ -29,17 +34,50 @@ app.get('/games', (req, res) => {
     res.json(games);
 });
 
-app.post('/game', jsonParser, (req, res) => {
+app.post('/game', (req, res) => {
     const game = req.body;
     
     console.log(game);
     game.id = games[games.length - 1].id + 1;
     games.push(game);
 
-    res.status = 201;
-    res.send('Game is added to the list');
+    res.status(201).send('Game is added to the list');
+});
+
+app.get('/game/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+
+    const game = findGameById(id);
+
+    if (id)
+        res.json(game);
+
+    res.status(404).send('Game not found.');
+});
+
+app.delete('/game/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+
+    games = games.filter((game) => {
+        if (game.id !== id) {
+            return true;
+        }
+       return false;
+   });
+
+   res.send(`Deleted game with ID ${id}`);
 });
 
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
 });
+
+function findGameById(id) {
+    for (const game of games) {
+        if (game.id === id) {
+            return game;
+        }
+    }
+
+    return null;
+}
