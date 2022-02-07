@@ -12,5 +12,8 @@
     "body-parser": "^1.19.1",
     "express": "^4.17.2",
     "typescript": "^4.5.5"
+  },
+  "devDependencies": {
+    "mocha": "^9.2.0"
   }
 }
