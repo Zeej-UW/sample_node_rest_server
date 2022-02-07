@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require('body-parser');
 const router = express.Router();
+const Game = require('../models/game');
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded(
@@ -10,21 +11,9 @@ router.use(bodyParser.urlencoded(
 ));
 
 let games = [
-    {
-        id: 1,
-        title: 'Battlefield 3',
-        release_date: '2012-10-30'
-    },
-    {
-        id: 2,
-        title: 'Game: the Game',
-        release_date: '2014-12-31'
-    },
-    {
-        id: 3,
-        title: 'Movie: the Game',
-        release_date: '2009-09-23'
-    }
+    new Game('Battlefield 3', '2012-10-30'),
+    new Game('Game: the Game', '2014-12-31'),
+    new Game('Movie: the Game', '2009-09-23')
 ];
 
 router
@@ -33,11 +22,16 @@ router
         res.json(games);
     })
     .post((req, res) => {
-        const game = req.body;
-        console.log(game);
-        game.id = games[games.length - 1].id + 1;
-        games.push(game);
-        res.status(201).send('Game is added to the list');
+        let game;
+        if (req.body.title && req.body.release_date)
+            game = new Game(req.body.title, req.body.release_date);
+        if (game) {
+            games.push(game);
+            res.status(201).send({id: game.id});
+            return;
+        }
+
+        res.sendStatus(401);
     });
 
 router
